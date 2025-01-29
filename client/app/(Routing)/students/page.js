@@ -6,38 +6,95 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import axios from "axios"
+import { useEffect } from "react"
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const BASEURL = process.env.NEXT_PUBLIC_BASE_URL;
 
 
-const initialStudents = [
-  { id: 1, name: "John Doe", email: "john@example.com", phone: "123-456-7890" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com", phone: "987-654-3210" },
-]
+
 
 export default function ManageStudentsPage() {
-  const [students, setStudents] = useState(initialStudents)
+  const [students, setStudents] = useState([]);
   const [newStudent, setNewStudent] = useState({ name: "", email: "", phone: "" })
   const [editingStudent, setEditingStudent] = useState(null)
 
-  const addStudent = () => {
-    setStudents([...students, { ...newStudent, id: students.length + 1 }])
-    setNewStudent({ name: "", email: "", phone: "" })
-  }
 
-  const updateStudent = () => {
-    if (editingStudent) {
-      setStudents(students.map((s) => (s.id === editingStudent.id ? editingStudent : s)))
-      setEditingStudent(null)
+  const fetchInitialStudents = async () => {
+    try {
+      const response = await axios.get(BASEURL + "/api/students", { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+      return response.data
+    } catch (error) {
+      toast.error("Failed to add student.", error);
+      return students
     }
   }
 
-  const deleteStudent = (id) => {
-    setStudents(students.filter((s) => s.id !== id))
+  const insertStudents = async (name, email, phone) => {
+    try {
+      const response = await axios.post(BASEURL + "/api/register", { name, email, phone }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      return response.data;
+    } catch (error) {
+      toast.error("Failed to add student.");
+      return students;
+    }
   }
 
+  useEffect(() => {
+    const getStudents = async () => {
+      const response = await fetchInitialStudents()
+      const { students } = response;
+      setStudents(students)
+    }
+    getStudents()
+  }, [])
+
+
+
+
+
+  const addStudent = async () => {
+    const { name, email, phone } = newStudent;
+    const data = await insertStudents(name, email, phone);
+    if (data.message === "Student registered successfully") {
+      toast.success(data.message);
+      setStudents([...students, { ...newStudent, student_id: students.length + 2 }])
+      setNewStudent({ name: "", email: "", phone: "" })
+    }
+  }
+
+  const updateStudent = async () => {
+    if (!editingStudent) return;
+
+    try {
+      const response = await axios.put(BASEURL + `/api/students/${editingStudent.student_id}`, {name: editingStudent.name,
+        email: editingStudent.email, phone: editingStudent.phone, }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }});
+      
+      if (response.data.message === "Student updated successfully") {
+        toast.success("Student updated successfully");
+
+        // Update the state
+        setStudents(
+          students.map((s) =>
+            s.student_id === editingStudent.student_id ? editingStudent : s
+          )
+        );
+        setEditingStudent(null); // Clear the editing state
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to update student.");
+    }
+  };
+
+
   return (
+
     <div className="sm:px-12 px-6 py-6 space-y-6">
       <h1 className="text-3xl font-bold">Manage Students</h1>
-
+      <ToastContainer />
       <Dialog>
         <DialogTrigger asChild>
           <Button>Add Student</Button>
@@ -96,7 +153,7 @@ export default function ManageStudentsPage() {
         </TableHeader>
         <TableBody>
           {students.map((student) => (
-            <TableRow key={student.id}>
+            <TableRow key={student.student_id}>
               <TableCell>{student.name}</TableCell>
               <TableCell>{student.email}</TableCell>
               <TableCell>{student.phone}</TableCell>
@@ -155,9 +212,6 @@ export default function ManageStudentsPage() {
                     <Button onClick={updateStudent}>Update Student</Button>
                   </DialogContent>
                 </Dialog>
-                <Button variant="destructive" onClick={() => deleteStudent(student.id)}>
-                  Delete
-                </Button>
               </TableCell>
             </TableRow>
           ))}
