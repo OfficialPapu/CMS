@@ -154,4 +154,14 @@ const updateTotalDueController = async (req, res) => {
     return res.status(200).json({ message: 'Student updated successfully' });
 };
 
-module.exports = { loginController, registerStudentController, getStudentsController, updateStudentController, getPurchaseController, addPurchaseController, getSummaryController, getSummaryDetailController, updateTotalDueController };
+const getreportsController = async (req, res) => { 
+    try {
+        const [reports] = await db.query('SELECT s.name as studentName, count(p.purchase_id) as totalPurchases, sum(p.total_price) as totalAmount FROM purchases p JOIN students s ON s.student_id = p.student_id GROUP BY s.student_id');
+        return res.status(200).json({ reports });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+ };
+
+module.exports = { loginController, registerStudentController, getStudentsController, updateStudentController, getPurchaseController, addPurchaseController, getSummaryController, getSummaryDetailController, updateTotalDueController, getreportsController };

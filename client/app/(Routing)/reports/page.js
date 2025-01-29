@@ -3,29 +3,33 @@
 import { useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import axios from "axios"
+import { useEffect } from "react"
+const BASEURL = process.env.NEXT_PUBLIC_BASE_URL;
 
-
-const initialReportData = [
-  { id: 1, studentName: "John Doe", totalPurchases: 15, totalAmount: 189.85 },
-  { id: 2, studentName: "Jane Smith", totalPurchases: 12, totalAmount: 145.5 },
-  { id: 3, studentName: "Mike Johnson", totalPurchases: 8, totalAmount: 98.75 },
-]
 
 export default function ReportsPage() {
-  const [reportType, setReportType] = useState("monthly")
-  const [reportData, setReportData] = useState(initialReportData)
+  const [reportData, setReportData] = useState([])
 
-  const generateReport = () => {
-    // In a real application, this would fetch data from the backend based on the selected report type
-    console.log(`Generating ${reportType} report`)
-  }
+  useEffect(() => {
+    const fetchInitialReportData = async () => {
+      try {
+        const response = await axios.get(BASEURL + "/api/reports")
+        setReportData(response.data.reports)
+      } catch (error) {
+        console.error("Error fetching initial report data:", error)
+      }
+    }
+    fetchInitialReportData()
+  }, [])
+
 
   return (
     <div className="space-y-6 md:px-24 py-6 px-6">
       <h1 className="text-3xl font-bold">Reports</h1>
       <Card>
         <CardHeader>
-          <CardTitle>{reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report</CardTitle>
+          <CardTitle>Monthly Report</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -38,10 +42,10 @@ export default function ReportsPage() {
             </TableHeader>
             <TableBody>
               {reportData.map((data) => (
-                <TableRow key={data.id}>
+                <TableRow key={data.student_id}>
                   <TableCell>{data.studentName}</TableCell>
                   <TableCell>{data.totalPurchases}</TableCell>
-                  <TableCell>${data.totalAmount.toFixed(2)}</TableCell>
+                  <TableCell>Rs. {data.totalAmount}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -20,11 +20,6 @@ const fetchInitialPurchases = async () => {
   }
 };
 
-const initialPurchases = [
-  { id: 1, name: "John Doe", item: "Lunch Combo", price: 12.99, date: "2024-01-27" },
-  { id: 2, name: "Jane Smith", item: "Breakfast Set", price: 8.99, date: "2024-01-27" },
-]
-
 const fetchInitialStudents = async () => {
 
   try {
@@ -32,7 +27,6 @@ const fetchInitialStudents = async () => {
     return response.data.students
   } catch (error) {
     toast.error("Failed to add student.", error);
-    return initialPurchases
   }
 }
 export default function RecordPurchasesPage() {

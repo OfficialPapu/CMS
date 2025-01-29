@@ -12,7 +12,6 @@ const routes = [
   { name: "Record Purchases", path: "/purchases", icon: ShoppingCart },
   { name: "Account Summary", path: "/summary", icon: FileText },
   { name: "Reports", path: "/reports", icon: BarChart3 },
-  { name: "Settings", path: "/settings", icon: Settings },
 ]
 
 export function Navbar() {
