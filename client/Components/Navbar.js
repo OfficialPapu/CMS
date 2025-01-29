@@ -6,6 +6,7 @@ import { Bell, Menu, User, BarChart3, Users, ShoppingCart, FileText, Settings, C
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { useEffect } from "react"
 
 const routes = [
   { name: "Manage Students", path: "/students", icon: Users },
@@ -16,7 +17,12 @@ const routes = [
 
 export function Navbar() {
   const pathname = usePathname()
-
+  useEffect(() => {
+    const user = localStorage.getItem("IsLoggedin")  
+    if (!user && pathname !== "/auth/login") {
+      window.location.href = "/auth/login"
+    }
+  }, [pathname]) 
   return (
     <nav className="border-b bg-white">
       <div className="flex h-16 items-center justify-between px-8">

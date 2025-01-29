@@ -32,7 +32,7 @@ export default function LoginForm() {
       
       if (data.message === "Login successful") {
         localStorage.setItem("IsLoggedin", "true");
-        router.push("/dashboard");
+        router.push("/");
       } else {
         setError(data.error);
       }
