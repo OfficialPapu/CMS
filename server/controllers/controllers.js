@@ -30,7 +30,7 @@ const registerStudentController = async (req, res) => {
         return res.status(400).json({ error: 'Name, email and phone are required' });
     }
 
-    try { 
+    try {
         const [existingStudent] = await db.query(
             'SELECT * FROM students WHERE phone = ?',
             [phone]
@@ -93,5 +93,34 @@ const updateStudentController = async (req, res) => {
     }
 };
 
+const getPurchaseController = async (req, res) => { 
+    try {
+        const [purchases] = await db.query('SELECT p.*, s.*, DATE_FORMAT(p.purchase_date, "%Y-%m-%d") AS purchase_date FROM purchases p JOIN students s ON s.student_id = p.student_id');
+        return res.status(200).json({ purchases });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
-module.exports = { loginController, registerStudentController, getStudentsController, updateStudentController };
+
+const addPurchaseController = async (req, res) => {
+    const { student_id, item, price, date } = req.body;
+    if (!student_id || !item || !price || !date) {
+        return res.status(400).json({ error: 'Student ID, item, price and date are required' });
+    }
+
+    try {
+        await db.query(
+            'INSERT INTO purchases (student_id, item, total_price, purchase_date) VALUES (?, ?, ?, ?)',
+            [student_id, item, price, date]
+        );
+
+        return res.status(201).json({ message: 'Purchase recorded successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+module.exports = { loginController, registerStudentController, getStudentsController, updateStudentController, getPurchaseController, addPurchaseController };
