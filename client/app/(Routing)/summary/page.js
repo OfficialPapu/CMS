@@ -34,11 +34,12 @@ export default function AccountSummaryPage() {
     const UpdateDue = async () => {
       if (selectedStudent) {
         const response = (await axios.put(BASEURL + "/api/summary/" + selectedStudent.student_id, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })).data;
-        if (response.message === 'Student updated successfully') {
+        if (response.message === 'Due Cleared') {
           toast.success(response.message);
           setTotalDues(0);
-        }
-      }
+        }else{
+          toast.error(response.message);
+      }}
     }
     UpdateDue();
   }

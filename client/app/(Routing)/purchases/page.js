@@ -185,7 +185,7 @@ export default function RecordPurchasesPage() {
             <TableRow key={purchase.purchase_id}>
               <TableCell>{purchase.name}</TableCell>
               <TableCell>{purchase.item}</TableCell>
-              <TableCell>Rs. {purchase.total_price}</TableCell>
+              <TableCell>Rs. {purchase.total_price ? purchase.total_price : purchase.price}</TableCell>
               <TableCell>
                 {purchase.purchase_date ? purchase.purchase_date : purchase.date}
               </TableCell>

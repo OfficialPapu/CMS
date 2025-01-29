@@ -151,7 +151,7 @@ const updateTotalDueController = async (req, res) => {
     await db.query(
         `UPDATE purchases SET total_price='0' WHERE student_id = ?`,[ student_id]
     );
-    return res.status(200).json({ message: 'Student updated successfully' });
+    return res.status(200).json({ message: 'Due Cleared' });
 };
 
 const getreportsController = async (req, res) => { 
