@@ -1,3 +1,4 @@
+const e = require('express');
 const db = require('../Config/dbConnection');
 
 const loginController = async (req, res) => {
@@ -93,7 +94,7 @@ const updateStudentController = async (req, res) => {
     }
 };
 
-const getPurchaseController = async (req, res) => { 
+const getPurchaseController = async (req, res) => {
     try {
         const [purchases] = await db.query('SELECT p.*, s.*, DATE_FORMAT(p.purchase_date, "%Y-%m-%d") AS purchase_date FROM purchases p JOIN students s ON s.student_id = p.student_id');
         return res.status(200).json({ purchases });
@@ -123,4 +124,34 @@ const addPurchaseController = async (req, res) => {
     }
 };
 
-module.exports = { loginController, registerStudentController, getStudentsController, updateStudentController, getPurchaseController, addPurchaseController };
+const getSummaryController = async (req, res) => {
+    try {
+        const [Summary] = await db.query(`SELECT s.student_id, s.name, s.email, s.phone FROM students s`);
+        return res.status(200).json({ Summary });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const getSummaryDetailController = async (req, res) => {
+    const { student_id } = req.params;
+    if (!student_id) {
+        return res.status(400).json({ error: 'Student ID is required' });
+    }
+    const [Summary] = await db.query(`SELECT p.*, DATE_FORMAT(p.purchase_date, "%Y-%m-%d") AS purchase_date FROM purchases p WHERE student_id = ?`, [student_id]);
+    return res.status(200).json({ Summary });
+};
+
+const updateTotalDueController = async (req, res) => {
+    const { student_id } = req.params;
+    if (!student_id) {
+        return res.status(400).json({ error: 'Student ID is required' });
+    }
+    await db.query(
+        `UPDATE purchases SET total_price='0' WHERE student_id = ?`,[ student_id]
+    );
+    return res.status(200).json({ message: 'Student updated successfully' });
+};
+
+module.exports = { loginController, registerStudentController, getStudentsController, updateStudentController, getPurchaseController, addPurchaseController, getSummaryController, getSummaryDetailController, updateTotalDueController };
